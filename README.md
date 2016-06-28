@@ -20,6 +20,19 @@ Run it:
 $ ruby wsdear_scraper.rb
 ```
 
-The images will be saved on folder `images`
+### Images
+
+The images will be saved on folder `images`, with `sku` subfolders. For example:
+
+```
+images
+  1234 (this is sku)
+    image_0.jpg
+    image_1.jpg
+    image_2.jpg
+  4567
+    image_0.jpg
+    image_1.jpg
+```
 
 The csv files (one for each category/url) will be saved on folder `export`
