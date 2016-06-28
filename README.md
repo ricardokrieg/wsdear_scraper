@@ -35,4 +35,13 @@ images
     image_1.jpg
 ```
 
-The csv files (one for each category/url) will be saved on folder `export`
+### CSV
+
+The csv files (one for each category/url) will be saved on folder `export`. For example:
+
+```
+export
+  womens_clothing_sweats.csv
+  womens_jumpsuit.csv
+  cheap_jewelry.csv
+```
