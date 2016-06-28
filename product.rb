@@ -5,12 +5,13 @@ class Product
   attr_reader :url
   attr_accessor :attrs
 
-  def initialize(url)
+  def initialize(url, categories=[])
     @url = url
+    @categories = categories
   end
 
   def scrape!
-    puts "Loading URL: #{@url}"
+    puts "Product: #{@url}"
 
     doc = Nokogiri::HTML(open(@url))
 
@@ -22,19 +23,11 @@ class Product
 
     @attrs[:price_as_float] = @attrs[:price].gsub(/\$/, '').to_f
 
-    categories = []
-
-    doc.css('ul.breadcrumb li').each do |li|
-      next if ['home', 'product'].include?(li.attr('class'))
-
-      categories << li.text.strip
-    end
-
-    @attrs[:category] = categories
-    @attrs[:category] = $category if @attrs[:category].empty?
+    @attrs[:category] = @categories
 
     options_array = []
-    details_array = []
+    # FIXME use only if will extract attributes (model, color, size ...)
+    # details_array = []
 
     doc.css('.product-options dl dt, .product-options dl dd').each do |dt_dd|
       case dt_dd.name
@@ -46,27 +39,35 @@ class Product
       end
     end
 
-    if doc.css('#decription table').any?
-      details_array = doc.css('#decription table tr th strong, #decription table tr td.data').map(&:text)
-    elsif doc.css('#decription .details').any?
-      doc.css('#decription .details').children.each do |el|
-        case el.name
-        when 'strong'
-          details_array << el.text.strip
-        when 'text'
-          details_array << el.text.strip.gsub(/\:\ /, '') if el.text.strip != ''
-        end
-      end
-    else
-      puts "Alert: No description found (#{@url})"
-    end
+    # FIXME fix description
+    # if doc.css('#decription table').any?
+    #   # FIXME use only if will extract attributes (model, color, size ...)
+    #   # details_array = doc.css('#decription table tr th strong, #decription table tr td.data').map(&:text)
+    #   details = doc.css('#decription table').to_s
+    # elsif doc.css('#decription .details').any?
+    #   doc.css('#decription .details').children.each do |el|
+    #     case el.name
+    #     when 'strong'
+    #       details_array << el.text.strip
+    #     when 'text'
+    #       details_array << el.text.strip.gsub(/\:\ /, '') if el.text.strip != ''
+    #     end
+    #   end
+    # else
+    #   puts "Alert: No description found (#{@url})"
+    # end
 
-    doc.css('#decription').css('script').remove
-    details_html = doc.css('#decription').inner_html
+    details = doc.css('#decription').inner_html
+
+    # FIXME use only if will use the entire details section (including measure instructions)
+    # doc.css('#decription').css('script').remove
+    # details_html = doc.css('#decription').inner_html
 
     options = Hash[*options_array]
-    details = Hash[*details_array]
+    # FIXME use only if will extract attributes
+    # details = Hash[*details_array]
 
+    # FIXME use only if will download thumbnails
     # thumbnail_urls = doc.css('ul.product-image-thumbs li a img').map{ |i| i.attr('src') }
     image_urls = doc.css('.product-image-gallery img').map { |i| i.attr('src') }
     images = []
@@ -86,12 +87,10 @@ class Product
     end
 
     @attrs[:option_types] = options
-    @attrs[:details] = details
-    @attrs[:details_html] = details_html
     @attrs[:image_urls] = image_urls
     @attrs[:images] = images
 
-    @attrs[:description] = details_html
+    @attrs[:description] = details
 
   end
 end

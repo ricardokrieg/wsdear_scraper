@@ -1,17 +1,20 @@
 require './category'
 require './exporter'
 
-$url = ENV['URL'] || 'http://www.wsdear.com/womens-jumpsuit.html'
-$category = ENV['CATEGORY'] || ['Women', 'Jumpsuits']
-$limit = ENV['LIMIT'] || 10
+urls = [
+    'http://www.wsdear.com/womens-clothing-sweats.html',
+    'http://www.wsdear.com/womens-jumpsuit.html',
+    'http://www.wsdear.com/cheap-jewelry.html',
+]
 
-category = Category.new($url)
-category.scrape!
+# $limit = ENV['LIMIT'] || 50
+$limit = nil
 
-# product = Product.new('http://www.wsdear.com/summer-blue-flowers-printed-sleeveless-v-neck-straps-rompers.html')
-# product = Product.new('http://www.wsdear.com/fashion-summer-bright-candy-colored-beads-bracelet-for-women.html')
+urls.each do |url|
+  puts
 
-# product.scrape!
+  category = Category.new(url)
+  category.scrape!
 
-filename = "#{$category.join('_').downcase}.csv"
-Exporter.export_products(category.products, filename)
+  Exporter.export_products(category.products, category.filename)
+end

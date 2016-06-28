@@ -8,7 +8,10 @@ class Category
 
   def initialize(url)
     @url = url
+
     @title = nil
+    @breadcrumb = []
+
     @product_urls = []
     @products = []
   end
@@ -20,6 +23,10 @@ class Category
     scrape_products
   end
 
+  def filename
+    "#{@breadcrumb.join('_').downcase.gsub(/[^a-z_]/, '')}.csv"
+  end
+
   private
 
   def load
@@ -28,10 +35,10 @@ class Category
       url_to_load = load_url(url_to_load)
 
       break unless url_to_load
-      break if @product_urls.size >= $limit
+      break if !$limit.nil? && @product_urls.size >= $limit
     end
 
-    puts "Page: #{@title}"
+    puts "Page: #{@title} (#{@breadcrumb.join(' / ')})"
     puts "Collected #{@product_urls.size} urls"
   end
 
@@ -39,6 +46,14 @@ class Category
     puts "Loading URL: #{url}"
 
     doc = Nokogiri::HTML(open(url))
+
+    if @breadcrumb.empty?
+      doc.css('ul.breadcrumb li').each do |li|
+        next if ['home', 'product'].include?(li.attr('class'))
+
+        @breadcrumb << li.text.strip
+      end
+    end
 
     @title ||= doc.css('h1').text
     @product_urls += doc.css('a.product-image').map {|a| a.attr('href') }
@@ -52,12 +67,12 @@ class Category
 
   def scrape_products
     @product_urls.each do |product_url|
-      product = Product.new(product_url)
+      product = Product.new(product_url, @breadcrumb)
       product.scrape!
 
       @products << product
 
-      break if @products.size >= $limit
+      break if !$limit.nil? && @products.size >= $limit
     end
   end
 end

@@ -5,7 +5,7 @@ PRICE_MULTIPLIER = 0.0
 
 class Exporter
   def self.export_products(products, filename)
-    puts "Exporting to #{filename}"
+    puts "Exporting #{products.size} products to #{filename}"
 
     folder = 'export'
     FileUtils.mkdir_p folder
@@ -113,6 +113,6 @@ class Exporter
       end
     end
 
-    puts "Product exported"
+    puts "Done!"
   end
 end
