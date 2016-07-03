@@ -11,10 +11,18 @@ urls = [
 $limit = nil
 
 urls.each do |url|
-  puts
+  begin
+    puts
 
-  category = Category.new(url)
-  category.scrape!
+    category = Category.new(url)
+    category.scrape!
 
-  Exporter.export_products(category.products, category.filename)
+    Exporter.export_products(category.products, category.filename)
+  rescue => e
+    puts "Error: #{e.message}"
+    puts "Try again"
+    retry
+  else
+    puts "URL: #{url} scraped and exported."
+  end
 end

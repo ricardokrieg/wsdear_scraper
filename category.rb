@@ -1,6 +1,7 @@
 require 'open-uri'
 require 'nokogiri'
 
+require './connection'
 require './product'
 
 class Category
@@ -45,7 +46,7 @@ class Category
   def load_url(url)
     puts "Loading URL: #{url}"
 
-    doc = Nokogiri::HTML(open(url))
+    doc = Nokogiri::HTML(Connection.load_url(url))
 
     if @breadcrumb.empty?
       doc.css('ul.breadcrumb li').each do |li|

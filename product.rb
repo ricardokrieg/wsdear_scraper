@@ -1,6 +1,8 @@
 require 'open-uri'
 require 'nokogiri'
 
+require './connection'
+
 class Product
   attr_reader :url
   attr_accessor :attrs
@@ -13,7 +15,7 @@ class Product
   def scrape!
     puts "Product: #{@url}"
 
-    doc = Nokogiri::HTML(open(@url))
+    doc = Nokogiri::HTML(Connection.load_url(@url))
 
     @attrs = {
         name: doc.css('h1.product-name').text,
@@ -80,7 +82,7 @@ class Product
 
       image_path = "#{folder}/image_#{i}.#{extension}"
       File.open image_path, 'wb' do |io|
-        io.write open(image_url).read
+        io.write Connection.load_url(image_url).read
       end
 
       images << image_path
